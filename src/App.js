@@ -1,33 +1,8 @@
 import AddNetwork from "adding-default-hardhat";
 import { ethers } from "ethers";
-import axios from "axios";
-import {useState} from "react";
 function App() {
 
-  //backend server logic
-
-  const[status, setStatus] = useState("")
-
-  const startNode = async()=>{
-    try{
-      
-const response = await axios.get("http://localhost:3001/startHardhat");
-setStatus(response.data);
-
-    }catch(error){
-console.error(error)
-    }
-  }
-
-  const stopNode =  async()=>{
-    try{
-      const response = await axios.get("http://localhost:3001/stopHardhat");
-      setStatus(response.data);
-    }catch(error){
-      console.error(error);
-    }
-  }
-
+ 
 //vanar contract abi
   const abi =[{
       "inputs": [
@@ -339,6 +314,7 @@ console.error(error)
       "stateMutability": "payable",
       "type": "receive"
     }];
+    
 
   const VirtuaStakingAddress = '0xb4e9A5BC64DC07f890367F72941403EEd7faDCbB';
   async function  fetchContract(){
@@ -367,10 +343,7 @@ console.error(error)
     <div>
       <h1>My React App</h1>
       <button onClick={()=>AddNetwork({ selectedChainIndex: 0 , daystimestamp:10, addContract:fetchContract()})}>Add Network</button>
-     <button onClick={()=>startNode()}>StartNode</button>
-     <button onClick={()=>stopNode()}>StopNode</button>
-     
- <div>status:{status} </div>
+
     </div>
   );
 }
