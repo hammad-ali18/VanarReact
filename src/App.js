@@ -1,7 +1,6 @@
 import AddNetwork from "adding-default-hardhat";
 import { ethers } from "ethers";
 import {useState} from 'react';
-
 function App() {
 
  
@@ -939,32 +938,37 @@ const rewardBytecode ='0x608060405234801561001057600080fd5b5061001a3361001f565b6
 
   try{
 
-    if( typeof window.ethereum !== 'undefined' && window.ethereum.isConnected()){
+    if( typeof window.ethereum !== 'undefined'){
       await requestAccount();
       let provider = new ethers.providers.Web3Provider(window.ethereum);
       const wallet = new ethers.Wallet(privatekey,provider);
+    
       const RewardPoolInstance = new ethers.ContractFactory(rewardPoolAbi,rewardBytecode,wallet);
       const rewardContract = await RewardPoolInstance.deploy();
       await rewardContract.deployed();
+      console.log(rewardContract.address)
       
       const StakingDatabaseInstance = new ethers.ContractFactory(databaseAbi,databasebytecode,wallet);
       const stakingdb = await StakingDatabaseInstance.deploy(rewardContract.address);
       await stakingdb.deployed();
+      console.log(stakingdb.address)
       
       
       const VirtuaStakingInstance = new ethers.ContractFactory(virtuaAbi,virtuaBytecode,wallet);
-       const virtuaContract = await VirtuaStakingInstance.deploy(stakingdb.address,rewardContract.address);
+      const virtuaContract = await VirtuaStakingInstance.deploy(stakingdb.address,rewardContract.address);
       await virtuaContract.deployed();
-       console.log(virtuaContract.address);
-       
+      console.log(virtuaContract.address);
       
-      setVirtuaAddress(virtuaContract.address);
       setRewardAddress(rewardContract.address)  
       setDatabaseAddress(stakingdb.address)
-    
+      setVirtuaAddress(virtuaContract.address);
+      
+      
+       console.log('hello');
+       
     }
   }catch(error){
-    console.error("Contracts are not deployed");
+    console.error("Json RPc errror: ");
   }
 
 }
@@ -986,7 +990,7 @@ const rewardBytecode ='0x608060405234801561001057600080fd5b5061001a3361001f565b6
   return (
     <div>
       <h1>My React App</h1>
-      <button onClick={()=>AddNetwork({ selectedChainIndex: 0 , daystimestamp:10, addContract:fetchContract()})}>Add Network</button>
+      <button onClick={()=> AddNetwork({ selectedChainIndex: 0, daystimestamp:10, addContract:fetchContract()})}>Add Network</button>
 <h3>Virtua Address: {showVirtuaAddress}</h3>
 <h3>RewardPool Address: {showRewardAddress}</h3>
 <h3>Database Address: {showDatabaseAddress}</h3>
