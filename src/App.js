@@ -904,7 +904,7 @@ const rewardBytecode ='0x608060405234801561001057600080fd5b5061001a3361001f565b6
       
         if( typeof window.ethereum !=='undefined'){
           await requestAccount();
-          const provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
           const signer = provider.getSigner();
           const sendeth = await signer.sendTransaction(
             {
@@ -937,26 +937,36 @@ const rewardBytecode ='0x608060405234801561001057600080fd5b5061001a3361001f565b6
  const privatekey='a0f58d4c34352d29fbdac7ef77ea7070a2d7bad79c1afea08fa408a7756d8435'
  async function  fetchContract(){
 
-   let provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545/');
-   const wallet = new ethers.Wallet(privatekey,provider);
-   const RewardPoolInstance = new ethers.ContractFactory(rewardPoolAbi,rewardBytecode,wallet);
-   const rewardContract = await RewardPoolInstance.deploy();
-   await rewardContract.deployed();
-   
-   const StakingDatabaseInstance = new ethers.ContractFactory(databaseAbi,databasebytecode,wallet);
-   const stakingdb = await StakingDatabaseInstance.deploy(rewardContract.address);
-   await stakingdb.deployed();
+  try{
 
-
-   const VirtuaStakingInstance = new ethers.ContractFactory(virtuaAbi,virtuaBytecode,wallet);
-    const virtuaContract = await VirtuaStakingInstance.deploy(stakingdb.address,rewardContract.address);
-await virtuaContract.deployed();
-    console.log(virtuaContract.address);
+    if( typeof window.ethereum !== 'undefined' && window.ethereum.isConnected()){
+      await requestAccount();
+      let provider = new ethers.providers.Web3Provider(window.ethereum);
+      const wallet = new ethers.Wallet(privatekey,provider);
+      const RewardPoolInstance = new ethers.ContractFactory(rewardPoolAbi,rewardBytecode,wallet);
+      const rewardContract = await RewardPoolInstance.deploy();
+      await rewardContract.deployed();
+      
+      const StakingDatabaseInstance = new ethers.ContractFactory(databaseAbi,databasebytecode,wallet);
+      const stakingdb = await StakingDatabaseInstance.deploy(rewardContract.address);
+      await stakingdb.deployed();
+      
+      
+      const VirtuaStakingInstance = new ethers.ContractFactory(virtuaAbi,virtuaBytecode,wallet);
+       const virtuaContract = await VirtuaStakingInstance.deploy(stakingdb.address,rewardContract.address);
+      await virtuaContract.deployed();
+       console.log(virtuaContract.address);
+       
+      
+      setVirtuaAddress(virtuaContract.address);
+      setRewardAddress(rewardContract.address)  
+      setDatabaseAddress(stakingdb.address)
     
+    }
+  }catch(error){
+    console.error("Contracts are not deployed");
+  }
 
- setVirtuaAddress(virtuaContract.address);
-setRewardAddress(rewardContract.address)  
-setDatabaseAddress(stakingdb.address)
 }
  
   
